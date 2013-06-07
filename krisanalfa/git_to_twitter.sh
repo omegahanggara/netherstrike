@@ -10,10 +10,6 @@ url=;
 tweets=;
 
 postToTwitter() {
-    echo "$tweets" >> ~/.githubTweets.lst;                                 # logging
-    cat ~/.githubTweets.lst | sed '/^$/d' | uniq > /tmp/githubTweets.lst   # removing duplicate entry
-    rm ~/.githubTweets.lst
-    cat /tmp/githubTweets.lst | uniq > ~/.githubTweets.lst
     exist=$(cat ~/.githubTweets.lst | grep "$tweets");
     if [[ $exist == "" ]]; then
         twidge update "$tweets";
@@ -21,6 +17,10 @@ postToTwitter() {
     else
         echo "You have tweet that tweet!"
     fi
+    echo "$tweets" >> ~/.githubTweets.lst;                                 # logging
+    cat ~/.githubTweets.lst | sed '/^$/d' | uniq > /tmp/githubTweets.lst   # removing duplicate entry
+    rm ~/.githubTweets.lst
+    cat /tmp/githubTweets.lst | uniq > ~/.githubTweets.lst
 }
 
 command -v twidge > /dev/null
