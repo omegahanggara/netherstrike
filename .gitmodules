@@ -1,0 +1,3 @@
+[submodule "omegahanggara/kernel-tunner"]
+	path = omegahanggara/kernel-tunner
+	url = git@github.com:omegahanggara/kernel-tuner.git
