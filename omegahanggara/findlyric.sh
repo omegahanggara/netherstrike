@@ -59,7 +59,7 @@ function askArtist()
 		elif [[ $answerTypoArtist == *[Nn]* ]] || [[ $answerTypoArtist == "" ]]; then
 			typoArtist=false
 			cout info "Your artist is $inputArtist"
-			artist=$(echo $inputArtist | sed 's/ //g' | tr 'A-Z' 'a-z')
+			artist=$(echo $inputArtist | sed 's/ //g' | tr 'A-Z' 'a-z' | sed "s/'//g")
 		else
 			typoArtist=true
 		fi
@@ -80,7 +80,7 @@ function askSong()
 		elif [[ $answertypoSong == *[Nn]* ]] || [[ $answertypoSong == "" ]]; then
 			typoSong=false
 			cout info "Your song is $inputSong"
-			song=$(echo $inputSong | sed 's/ //g' | tr 'A-Z' 'a-z')
+			song=$(echo $inputSong | sed 's/ //g' | tr 'A-Z' 'a-z' | sed "s/'//g")
 		else
 			typoSong=true
 		fi
