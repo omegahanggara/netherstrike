@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
 # Variable #
+artist=
+song=
+azlyricURL="http://www.azlyrics/com"
+fullURL=
 
 # Function #
 function cin() {
@@ -81,6 +85,7 @@ function askSong()
 			typoSong=false
 			cout info "Your song is $inputSong"
 			song=$(echo $inputSong | sed 's/ //g' | tr 'A-Z' 'a-z' | sed "s/'//g")
+			fullURL=$azlyricURL/$artist/$song.html
 		else
 			typoSong=true
 		fi
@@ -89,7 +94,7 @@ function askSong()
 
 function doCurl()
 {
-	curl --silent --user-agent "Mozilla/4.73 [en] (X11; U; Linux 2.2.15 i686)" $azlyricURL/$artist/$song.html
+	curl --silent --user-agent "Mozilla/4.73 [en] (X11; U; Linux 2.2.15 i686)" $fullURL
 }
 
 function getLyric()
@@ -100,7 +105,7 @@ function getLyric()
 		cout warning "Lyric is not found, check your artist and song again!"
 		askToTypeAgain=true
 		while [[ $askToTypeAgain == "true" ]]; do
-			cout info "Type again? (Y/n) "
+			cin info "Type again? (Y/n) "
 			read answerToTypeAgain
 			if [[ $answerToTypeAgain == *[Yy]* ]] || [[ $answerToTypeAgain == "" ]]; then
 				askToTypeAgain=false
@@ -108,7 +113,30 @@ function getLyric()
 				askSong
 			elif [[ $answerToTypeAgain == *[Nn]* ]]; then
 				askToTypeAgain=false
-				cout warning "Quiting..."
+				askToFindASolution=true
+				while [[ $askToFindASolution == "true" ]]; do
+					cin info "Find a solution from Google? (Y/n) "
+					read answerToFindASolution
+					if [[ $answerToFindASolution == *[Yy]* ]] || [[ $answerToFindASolution == "" ]]; then
+						askToFindASolution=false
+						cout action "Find a solution based on what you type..."
+						sleep 1
+						artisToBeSearched=$(echo $inputArtist | sed 's/ /+/g' | tr 'A-Z' 'a-z')
+						cout info "Your artist = $inputArtist"
+						sleep 1
+						songToBeSearched=$(echo $inputSong | sed 's/ /+/g' | tr 'A-Z' 'a-z')
+						cout info "Your song = $inputSong"
+						sleep 1
+						findSolution
+					elif [[ $answerToFindASolution == *[Nn]* ]]; then
+						askToFindASolution=false
+						cout warning "Quiting.. Nothing to be done here.."
+						sleep 1
+						exit 1
+					else
+						cout warning "Please type a valid answer!"
+					fi
+				done
 				sleep 1
 				exit 1
 			else
@@ -138,6 +166,36 @@ function getLyric()
 			fi
 		done
 	fi
+}
+
+function findSolution()
+{	
+	keyword="$artisToBeSearched+$songToBeSearched"
+	googleURL="http://www.google.com/search?q=$keyword"
+	solutionresult=$(curl --silent --user-agent "Mozilla/4.73 [en] (X11; U; Linux 2.2.15 i686)" $googleURL | awk -F "Showing results for" {'print $2'} | awk -F "Search instead for" {'print $1'} | awk -F '=UTF-8">'  {'print $2'} | sed 's/<[^>]\+>//g' | head)
+	cout info "Based on google search, I found a solution below this: $(echo $solutionresult)"
+	askToValidatingTheSolution=true
+	while [[ $askToValidatingTheSolution == "true" ]]; do
+		cin info "Is that you mean? (Y/n) "
+		read answerToValidatingTheSolution
+		if [[ $answerToValidatingTheSolution == *[Yy]* ]] || [[ $answerToValidatingTheSolution == "" ]]; then
+			askToValidatingTheSolution=false
+			cout info "OK"
+			newKeyword=$(echo $solutionresult | sed 's/ /+/g')
+			googleURL="http://www.google.com/search?q=$newKeyword+azlyrics"
+			baseURL="http://www.azlyrics.com"
+			lyricsURL=$(curl --silent --user-agent "Mozilla/4.73 [en] (X11; U; Linux 2.2.15 i686)" $googleURL | awk -F "http://www.azlyrics.com" {'print $2'} | awk -F "&amp" {'print $1'})
+			fullURL=$(echo $baseURL$lyricsURL | sed 's/ //g')			
+			getLyric
+		elif [[ $answerToValidatingTheSolution == *[Nn]* ]]; then
+			askToValidatingTheSolution=false
+			cout info "WTF"
+		else
+			cout warning "I can't find a solution, quiting!"
+			sleep 1
+			exit 1
+		fi
+	done
 }
 
 # Main Program #
