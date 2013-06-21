@@ -34,7 +34,6 @@ function checkInternetConnection()
 		dig www.google.com +time=3 +tries=1 @8.8.8.8 > /dev/null 2>&1
 		if [[ $? -eq 0 ]]; then
 			cout info "Good, you have Internet Connection..."
-			azlyricURL="http://www.azlyrics.com/lyrics"
 		else
 			cout error "You don't have Internet Connection!"
 			sleep 1
@@ -105,7 +104,8 @@ function getLyric()
 		cout warning "Lyric is not found, check your artist and song again!"
 		askToTypeAgain=true
 		while [[ $askToTypeAgain == "true" ]]; do
-			cin info "Type again? (Y/n) "
+			cin info "Type again? (Y/n)"
+			cin info "Tips: If you're sure you are not typo, press N, and we'll help you to find a solution on Google."
 			read answerToTypeAgain
 			if [[ $answerToTypeAgain == *[Yy]* ]] || [[ $answerToTypeAgain == "" ]]; then
 				askToTypeAgain=false
@@ -153,8 +153,15 @@ function getLyric()
 			read answerToSave
 			if [[ $answerToSave == *[Yy]* ]] || [[ $answerToSave == "" ]]; then
 				askToSave=false
-				doCurl | sed -n "$from,$to"p | sed 's/<[^>]\+>//g' > $HOME/$song.txt
-				cout info "The result saved on your $HOME directory with name $song.txt"
+				if [[ -d "$HOME/Lyric" ]]; then
+					doCurl | sed -n "$from,$to"p | sed 's/<[^>]\+>//g' > "$HOME/Lyric/$inputArtist-$inputSong.txt"
+				else
+					cout warning "Lyric folder is not found in your $HOME directory! Create a new one..."
+					sleep 1
+					mkdir $HOME/Lyric
+					doCurl | sed -n "$from,$to"p | sed 's/<[^>]\+>//g' > "$HOME/Lyric/$inputArtist-$inputSong.txt"
+				fi
+				cout info "The result saved on your $HOME/Lyric directory with name $inputArtist-$inputSong.txt"
 			elif [[ $answerToSave == *[Nn]* ]]; then
 				askToSave=false
 				cout action "Print the result..."
