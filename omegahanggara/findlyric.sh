@@ -3,7 +3,7 @@
 # Variable #
 artist=
 song=
-azlyricURL="http://www.azlyrics/com"
+azlyricURL="http://www.azlyrics.com/lyrics/"
 fullURL=
 
 # Function #
@@ -104,7 +104,7 @@ function getLyric()
 		cout warning "Lyric is not found, check your artist and song again!"
 		askToTypeAgain=true
 		while [[ $askToTypeAgain == "true" ]]; do
-			cin info "Type again? (Y/n)"
+			cout info "Type again? (Y/n)"
 			cin info "Tips: If you're sure you are not typo, press N, and we'll help you to find a solution on Google."
 			read answerToTypeAgain
 			if [[ $answerToTypeAgain == *[Yy]* ]] || [[ $answerToTypeAgain == "" ]]; then
