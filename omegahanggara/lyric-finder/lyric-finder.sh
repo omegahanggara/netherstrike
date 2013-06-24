@@ -5,6 +5,8 @@ artist=
 song=
 azlyricURL="http://www.azlyrics.com/lyrics/"
 fullURL=
+version="Alpha 1"
+codename="Ravage"
 
 # Function #
 function cin() {
@@ -213,11 +215,29 @@ doAll()
 	getLyric
 }
 
+version()
+{
+	echo $version
+}
+
+about()
+{
+	echo "######################################"
+	echo "### Lyric Finder by Omega Hanggara ###"
+	echo "###        Version $version         ###"
+	echo "###        Codename $codename         ###"
+	echo "######################################"
+	echo ""
+}
+
 usage()
 {
+	about
 	echo "Option"
 	echo "-i : Using interactive mode"
-	cout info "Usage : bash findlyric.sh -i"
+	echo "-h : Show help option"
+	echo ""
+	cout info "Usage : bash lyric-finder.sh [OPTION]"
 }
 
 # Main Program #
@@ -227,6 +247,9 @@ case $1 in
 		;;
 	-h)
 	usage
+		;;
+	-v)
+	version
 		;;
 	*)
 	usage
