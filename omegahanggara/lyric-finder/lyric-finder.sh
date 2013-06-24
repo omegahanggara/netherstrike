@@ -205,8 +205,30 @@ function findSolution()
 	done
 }
 
+doAll()
+{
+	checkInternetConnection
+	askArtist
+	askSong
+	getLyric
+}
+
+usage()
+{
+	echo "Option"
+	echo "-i : Using interactive mode"
+	cout info "Usage : bash findlyric.sh -i"
+}
+
 # Main Program #
-checkInternetConnection
-askArtist
-askSong
-getLyric
+case $1 in
+	-i)
+		doAll
+		;;
+	-h)
+	usage
+		;;
+	*)
+	usage
+		;;
+esac
