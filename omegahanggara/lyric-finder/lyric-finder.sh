@@ -54,43 +54,14 @@ function askArtist()
 {
 	cin info "Enter artist's name here : "
 	read inputArtist
-	typoArtist=true
-	while [[ $typoArtist == "true" ]]; do
-		cin info "Typo? (y/N) "
-		read answerTypoArtist
-		if [[ $answerTypoArtist == *[Yy]* ]]; then
-			typoArtist=false
-			askArtist
-		elif [[ $answerTypoArtist == *[Nn]* ]] || [[ $answerTypoArtist == "" ]]; then
-			typoArtist=false
-			cout info "Your artist is $inputArtist"
-			artist=$(echo $inputArtist | sed 's/ //g' | tr 'A-Z' 'a-z' | sed "s/'//g")
-		else
-			typoArtist=true
-		fi
-	done
+	artist=$(echo $inputArtist | sed 's/ //g' | tr 'A-Z' 'a-z' | sed "s/'//g")
 }
 
 function askSong()
 {
 	cin info "Enter song here : "
 	read inputSong
-	typoSong=true
-	while [[ $typoSong == "true" ]]; do
-		cin info "Typo? (y/N) "
-		read answertypoSong
-		if [[ $answertypoSong == *[Yy]* ]]; then
-			typoSong=false
-			askArtist
-		elif [[ $answertypoSong == *[Nn]* ]] || [[ $answertypoSong == "" ]]; then
-			typoSong=false
-			cout info "Your song is $inputSong"
-			song=$(echo $inputSong | sed 's/ //g' | tr 'A-Z' 'a-z' | sed "s/'//g")
-			fullURL=$azlyricURL/$artist/$song.html
-		else
-			typoSong=true
-		fi
-	done
+	song=$(echo $inputSong | sed 's/ //g' | tr 'A-Z' 'a-z' | sed "s/'//g")
 }
 
 function doCurl()
@@ -103,44 +74,28 @@ function getLyric()
 	cout action "Finding lyric..."
 	doCurl | grep -n " start of lyrics" > /dev/null 2>&1
 	if [[ $? -eq 1 ]]; then
-		cout warning "Lyric is not found, check your artist and song again!"
+		cout warning "Lyric is not found!"
 		askToTypeAgain=true
 		while [[ $askToTypeAgain == "true" ]]; do
-			cout info "Type again? (Y/n)"
-			cin info "Tips: If you're sure you are not typo, press N, and we'll help you to find a solution on Google: "
+			echo "1. I got typo"
+			echo "2. Help me to find it"
+			cin info "Choose your option: "
 			read answerToTypeAgain
-			if [[ $answerToTypeAgain == *[Yy]* ]] || [[ $answerToTypeAgain == "" ]]; then
+			if [[ $answerToTypeAgain == "1" ]] then
 				askToTypeAgain=false
 				askArtist
 				askSong
-			elif [[ $answerToTypeAgain == *[Nn]* ]]; then
+			elif [[ $answerToTypeAgain == "2" ]]; then
 				askToTypeAgain=false
-				askToFindASolution=true
-				while [[ $askToFindASolution == "true" ]]; do
-					cin info "Find a solution from Google? (Y/n) "
-					read answerToFindASolution
-					if [[ $answerToFindASolution == *[Yy]* ]] || [[ $answerToFindASolution == "" ]]; then
-						askToFindASolution=false
-						cout action "Find a solution based on what you type..."
-						sleep 1
-						artisToBeSearched=$(echo $inputArtist | sed 's/ /+/g' | tr 'A-Z' 'a-z')
-						cout info "Your artist = $inputArtist"
-						sleep 1
-						songToBeSearched=$(echo $inputSong | sed 's/ /+/g' | tr 'A-Z' 'a-z')
-						cout info "Your song = $inputSong"
-						sleep 1
-						findSolution
-					elif [[ $answerToFindASolution == *[Nn]* ]]; then
-						askToFindASolution=false
-						cout warning "Quiting.. Nothing to be done here.."
-						sleep 1
-						exit 1
-					else
-						cout warning "Please type a valid answer!"
-					fi
-				done
+				cout action "Find a solution based on what you type..."
 				sleep 1
-				exit 1
+				artisToBeSearched=$(echo $inputArtist | sed 's/ /+/g' | tr 'A-Z' 'a-z')
+				cout info "Your artist = $inputArtist"
+				sleep 1
+				songToBeSearched=$(echo $inputSong | sed 's/ /+/g' | tr 'A-Z' 'a-z')
+				cout info "Your song = $inputSong"
+				sleep 1
+				findSolution
 			else
 				cout warning "Please type a valid answer!"
 			fi
@@ -151,9 +106,11 @@ function getLyric()
 		to=$(doCurl | grep -n "end of lyrics" | awk -F ':' {'print $1'})
 		askToSave=true
 		while [[ $askToSave == "true" ]]; do
-			cin info "Do you want to save the result? (Y/n) "
+			echo "1. Save the lyric"
+			echo "2. Show lyric instead saving it"
+			cin info "What we do with this result? "
 			read answerToSave
-			if [[ $answerToSave == *[Yy]* ]] || [[ $answerToSave == "" ]]; then
+			if [[ $answerToSave == "1" ]]; then
 				askToSave=false
 				if [[ -d "$HOME/Lyric" ]]; then
 					doCurl | sed -n "$from,$to"p | sed 's/<[^>]\+>//g' > "$HOME/Lyric/$inputArtist-$inputSong.txt"
@@ -164,7 +121,7 @@ function getLyric()
 					doCurl | sed -n "$from,$to"p | sed 's/<[^>]\+>//g' > "$HOME/Lyric/$inputArtist-$inputSong.txt"
 				fi
 				cout info "The result saved on your $HOME/Lyric directory with name $inputArtist-$inputSong.txt"
-			elif [[ $answerToSave == *[Nn]* ]]; then
+			elif [[ $answerToSave == "2" ]]; then
 				askToSave=false
 				cout action "Print the result..."
 				sleep 1
