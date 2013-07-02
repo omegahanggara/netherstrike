@@ -62,6 +62,7 @@ function askSong()
 	cin info "Enter song here : "
 	read inputSong
 	song=$(echo $inputSong | sed 's/ //g' | tr 'A-Z' 'a-z' | sed "s/'//g")
+	fullURL=$azlyricURL/$artist/$song.html
 }
 
 function doCurl()
@@ -81,7 +82,7 @@ function getLyric()
 			echo "2. Help me to find it"
 			cin info "Choose your option: "
 			read answerToTypeAgain
-			if [[ $answerToTypeAgain == "1" ]] then
+			if [[ $answerToTypeAgain == "1" ]]; then
 				askToTypeAgain=false
 				askArtist
 				askSong
